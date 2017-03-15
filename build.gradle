@@ -1,0 +1,61 @@
+
+
+apply plugin: 'java'
+apply plugin :'scala'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+group 'com.dounine'
+version '1.0-SNAPSHOT'
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
+    }
+}
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+sourceCompatibility = 1.8
+shadowJar {
+    baseName = 'shadow'
+    classifier = null
+    version = null
+}
+jar {
+    manifest {
+        attributes(
+                'Implementation-Title': 'Gradle',
+                'Implementation-Version': version,
+                'Created-By': 'lake',
+                'Main-Class': 'com.dounine.blockchain.App',
+                'Class-Path': new File('./build/tmp/jars').list().collect { "lib/${it}" }.join(' ')
+        )
+    }
+//    from {
+//        configurations.compile.collect {
+//            it.isDirectory() ? it : zipTree(it)
+//        }
+//    }
+    into('lib') {
+        from configurations.runtime
+    }
+}
+task copyJars(type: Copy) {
+
+    from configurations.runtime
+
+    into new File('build/tmp/jars') // 目标位置
+
+}
+build.dependsOn copyJars
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+
+}

@@ -1,41 +1,39 @@
 package com.dounine.blockchain;
 
+import org.apache.commons.codec.binary.Base64;
+
 import javax.crypto.Cipher;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by lake on 17-4-12.
  */
-public class RSACoder{
+public class RSACoder {
     public static final String KEY_ALGORITHM = "RSA";
     public static final String SIGNATURE_ALGORITHM = "MD5withRSA";
 
     private static final String PUBLIC_KEY = "RSAPublicKey";
     private static final String PRIVATE_KEY = "RSAPrivateKey";
 
-    public static byte[] decryptBASE64(String key){
-        return Base64.getDecoder().decode(key);
+    public static byte[] decryptBASE64(String key) {
+        return Base64.decodeBase64(key);
     }
 
-    public static String encryptBASE64(byte[] bytes){
-        return Base64.getEncoder().encodeToString(bytes);
+    public static String encryptBASE64(byte[] bytes) {
+        return Base64.encodeBase64String(bytes);
     }
 
     /**
      * 用私钥对信息生成数字签名
      *
-     * @param data
-     *            加密数据
-     * @param privateKey
-     *            私钥
-     *
+     * @param data       加密数据
+     * @param privateKey 私钥
      * @return
      * @throws Exception
      */
@@ -63,16 +61,11 @@ public class RSACoder{
     /**
      * 校验数字签名
      *
-     * @param data
-     *            加密数据
-     * @param publicKey
-     *            公钥
-     * @param sign
-     *            数字签名
-     *
+     * @param data      加密数据
+     * @param publicKey 公钥
+     * @param sign      数字签名
      * @return 校验成功返回true 失败返回false
      * @throws Exception
-     *
      */
     public static boolean verify(byte[] data, String publicKey, String sign)
             throws Exception {
@@ -97,17 +90,7 @@ public class RSACoder{
         return signature.verify(decryptBASE64(sign));
     }
 
-    /**
-     * 解密<br>
-     * 用私钥解密
-     *
-     * @param data
-     * @param key
-     * @return
-     * @throws Exception
-     */
-    public static byte[] decryptByPrivateKey(byte[] data, String key)
-            throws Exception {
+    public static byte[] decryptByPrivateKey(byte[] data, String key) throws Exception{
         // 对密钥解密
         byte[] keyBytes = decryptBASE64(key);
 
@@ -119,8 +102,21 @@ public class RSACoder{
         // 对数据解密
         Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
-
         return cipher.doFinal(data);
+    }
+
+    /**
+     * 解密<br>
+     * 用私钥解密
+     *
+     * @param data
+     * @param key
+     * @return
+     * @throws Exception
+     */
+    public static byte[] decryptByPrivateKey(String data, String key)
+            throws Exception {
+        return decryptByPrivateKey(decryptBASE64(data),key);
     }
 
     /**
@@ -158,7 +154,7 @@ public class RSACoder{
      * @return
      * @throws Exception
      */
-    public static byte[] encryptByPublicKey(byte[] data, String key)
+    public static byte[] encryptByPublicKey(String data, String key)
             throws Exception {
         // 对公钥解密
         byte[] keyBytes = decryptBASE64(key);
@@ -172,7 +168,7 @@ public class RSACoder{
         Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm());
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
 
-        return cipher.doFinal(data);
+        return cipher.doFinal(data.getBytes());
     }
 
     /**

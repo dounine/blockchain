@@ -1,7 +1,17 @@
 apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.2.RELEASE")
+    }
+}
 
 group 'com.dounine'
-version '1.0-SNAPSHOT'
+version '1.0'
 
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
@@ -22,22 +32,38 @@ jar {
     }
 }
 task copyJars(type: Copy) {
-
     from configurations.runtime
-
-    into new File('build/tmp/jars') // 目标位置
-
+    into new File('build/libs/lib') // 目标位置
 }
-build.dependsOn copyJars
+compileJava.dependsOn copyJars
+
+def env = hasProperty("pro") ? "pro" : (hasProperty("dev") ? "dev" : null)
+sourceSets {
+    main {
+        resources {
+            srcDirs = ["src/main/resources", "src/main/profile/$env"]
+        }
+    }
+}
 
 repositories {
+    mavenLocal()
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile (group: 'com.dounine.japi', name: 'client', version: '1.0'){
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
+    compile("org.springframework.boot:spring-boot-starter-web") {
+        exclude group: 'com.fasterxml.jackson.core'
+    }
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+    compile group: 'commons-io', name: 'commons-io', version: '2.5'
+    compile group: 'com.alibaba', name: 'fastjson', version: "1.2.31"
+    compile group: 'com.google.guava', name: 'guava', version: "21.0"
     compile group: 'commons-codec', name: 'commons-codec', version: '1.10'
-
-
 }
+

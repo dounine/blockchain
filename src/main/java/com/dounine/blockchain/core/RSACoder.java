@@ -1,4 +1,4 @@
-package com.dounine.blockchain;
+package com.dounine.blockchain.core;
 
 import org.apache.commons.codec.binary.Base64;
 

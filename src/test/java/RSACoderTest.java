@@ -1,9 +1,7 @@
-import com.dounine.blockchain.RSACoder;
-import org.apache.commons.codec.binary.Base64;
+import com.dounine.blockchain.core.RSACoder;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.math.BigInteger;
 import java.security.Key;
 import java.util.Map;
 
